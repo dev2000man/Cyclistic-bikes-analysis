@@ -1,7 +1,8 @@
 # Cyclistic-bikes-analysis
 Repository files for Cyclistic Bike Share Case Study
 
-## List of .csv files - 12 in all:
+## List of .csv files - 12 in all - at
+https://divvy-tripdata.s3.amazonaws.com/index.html:
 1. 202201-divvy-tripdata.csv
 2. 202202-divvy-tripdata.csv
 3. 202203-divvy-tripdata.csv
@@ -14,5 +15,6 @@ Repository files for Cyclistic Bike Share Case Study
 10. 202210-divvy-tripdata.csv
 11. 202211-divvy-tripdata.csv
 12. 202212-divvy-tripdata.csv
+(Some files are too large to store here on github, so providing links)
 
 ## Powerpoint summary analysis
