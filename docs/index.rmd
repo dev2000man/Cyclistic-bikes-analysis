@@ -1,0 +1,276 @@
+---
+title: "Divvy Cyclistic Analysis - 12 months"
+author: "Peter A. Blackwell"
+date: "2023-02-18"
+output: 
+  html_document:
+  anchor_sections : TRUE
+  style: icon
+  depth: 2
+---
+
+***
+
+This analysis is based on the Divvy case study 
+"Sophisticated, Clear, and Polished’: Divvy and Data Visualization" <br> 
+written by Kevin Hartman 
+( found here: https://artscience.blog/home/divvy-dataviz-case-study ). 
+
+The purpose of this script is to consolidate downloaded Divvy data into a single dataframe and then conduct simple analysis to help answer the key question of the case study: 
+
+#### “In what ways do members and casual riders use Divvy bikes differently?”
+
+***
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## SETUP STEPS
+##### Install required packages -
+##### 1) tidyverse for data import and wrangling
+##### 2) lubridate for date functions
+##### 3) ggplot for visualization
+##### 4) dplyr for analysis
+ 
+```{r}
+library(tidyverse)  
+library(lubridate)  
+library(ggplot2)
+library(dplyr)
+```
+
+## STEP 1: COLLECT DATA
+1. Upload Divvy datasets (csv files) here - using directory 'Cyclistic - data'
+```{r}
+library(here)
+month_1 <- read_csv(here("Cyclistic - data","202201-divvy-tripdata.csv"))
+month_2 <- read_csv(here("Cyclistic - data","202202-divvy-tripdata.csv"))
+month_3 <- read_csv(here("Cyclistic - data","202203-divvy-tripdata.csv"))
+month_4 <- read_csv(here("Cyclistic - data","202204-divvy-tripdata.csv"))
+month_5 <- read_csv(here("Cyclistic - data","202205-divvy-tripdata.csv"))
+month_6 <- read_csv(here("Cyclistic - data","202206-divvy-tripdata.csv"))
+month_7 <- read_csv(here("Cyclistic - data","202207-divvy-tripdata.csv"))
+month_8 <- read_csv(here("Cyclistic - data","202208-divvy-tripdata.csv"))
+month_9 <- read_csv(here("Cyclistic - data","202209-divvy-publictripdata.csv"))
+month_10 <- read_csv(here("Cyclistic - data","202210-divvy-tripdata.csv"))
+month_11 <- read_csv(here("Cyclistic - data","202211-divvy-tripdata.csv"))
+month_12 <- read_csv(here("Cyclistic - data","202212-divvy-tripdata.csv"))
+
+```
+
+2. Stack individual months' data frames into one big data frame
+```{r}
+all_trips <- bind_rows(month_1, month_2, month_3, month_4, month_5, month_6
+                       ,month_7, month_8, month_9, month_10, month_11, month_12)
+```
+
+## STEP 2: CLEAN DATA (PART 1)
+1.  Remove columns not needed for analysis
+    (station id columns, longitude/latitude columns)
+```{r}    
+all_trips<- all_trips %>%
+  select(-c(start_station_id,end_station_id:end_lng))
+```
+2. Remove 'na' values - this will put into a new data frame 'all_data_trips_v2'
+```{r}
+all_trips_v2 <- na.omit(all_trips)
+```
+3. Run a count of 'member_casual' on the cleaned up data frame
+```{r}
+table(all_trips_v2$member_casual)
+```
+
+
+4. Add custom columns to the all_trips_v2 dataset based off the 'started_at' column - 
+   
+   extract the date without the timestamp, and month, day, year
+   
+   Also get the day of week in number format
+```{r}
+all_trips_v2$date <- as.Date(all_trips_v2$started_at) #The default format is yyyy-mm-dd
+all_trips_v2$month <- format(as.Date(all_trips_v2$date), "%b")
+all_trips_v2$day <- format(as.Date(all_trips_v2$date), "%d")
+all_trips_v2$year <- format(as.Date(all_trips_v2$date), "%Y")
+all_trips_v2$day_of_week <- format(as.Date(all_trips_v2$date), "%A")
+```
+
+5. Add a "ride_length" calculation to all_trips (in seconds)
+
+   (reference - https://stat.ethz.ch/R-manual/R-devel/library/base/html/difftime.html)
+```{r}
+all_trips_v2$ride_length <- difftime(all_trips_v2$ended_at,all_trips_v2$started_at)
+```
+
+## STEP 3: INSPECT THE DATA
+1. Inspect the structure of the columns
+```{r}
+str(all_trips_v2)
+```
+
+2.  Convert "ride_length" from Factor to numeric so we can run calculations on the data
+```{r}
+is.numeric(all_trips_v2$ride_length)
+all_trips_v2$ride_length <- as.numeric(as.character(all_trips_v2$ride_length))
+is.numeric(all_trips_v2$ride_length)
+```
+## STEP 2: CLEAN DATA (PART 2)
+1. Remove "bad" data
+
+The dataframe includes a few hundred entries when bikes were taken out of docks and checked for   quality by Divvy or ride_length was negative.
+
+We will create a new version of the dataframe (_clean) since data is being removed
+
+(reference - https://www.datasciencemadesimple.com/delete-or-drop-rows-in-r-with-conditions-2/ )
+```{r}
+   all_trips_clean <- all_trips_v2[!(all_trips_v2$start_station_name == "HQ QR" |          all_trips_v2$ride_length<0),]
+summary(all_trips_clean)
+summary(all_trips_v2$ride_length)
+# Run summary calculations on the ride length field for display
+aggregate(all_trips_clean$ride_length ~ all_trips_clean$member_casual, FUN = mean)
+aggregate(all_trips_clean$ride_length ~ all_trips_clean$member_casual, FUN = median)
+aggregate(all_trips_clean$ride_length ~ all_trips_clean$member_casual, FUN = max)
+aggregate(all_trips_clean$ride_length ~ all_trips_clean$member_casual, FUN = min)
+```
+
+2. Re-order the day of the week so it is American Sunday->Saturday order
+```{r}
+all_trips_clean$day_of_week <- ordered(all_trips_clean$day_of_week, levels=c("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"))
+```
+3. Make sure the months are in Jan - Dec. order
+```{r}
+all_trips_clean$month <- ordered(all_trips_clean$month, levels = c("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul","Aug","Sep","Oct","Nov","Dec"))
+```
+
+
+## STEP 5: ANALYZE THE DATA
+##### Note: We will use median rather than average(mean) on analyses and
+##### plots to better flatten the extremes in values
+
+1. Select number of rides, Median duration by customer type and day
+```{r}
+all_trips_clean %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, weekday) %>%
+  summarise(number_of_rides = n(),median_duration = median(ride_length))
+```
+
+
+2. Select number of rides, Median duration by customer type and month
+```{r rows.print=40}
+all_trips_clean %>%
+  group_by(member_casual, month) %>%
+  summarise(number_of_rides = n(),median_duration = median(ride_length)) %>% 
+  print(n=40)
+```
+
+## STEP 6: Charts
+1. Pie chart summary comparison of rider type for last 12 months
+```{r}
+all_trips_clean %>%
+  group_by(member_casual) %>%
+  summarise(number_of_rides = n()) %>% 
+  ggplot(aes(x = "", y = number_of_rides,fill=member_casual )) +
+    geom_bar(stat="identity", width=1) +
+    coord_polar("y", start=0) +
+  geom_text(aes(label = paste0(round(number_of_rides / sum(number_of_rides) * 100, 1), "%")), 
+            position = position_stack(vjust=0.5)) +
+  labs(x = NULL, y = NULL, fill = NULL) +
+  labs(title = "Total Rides from Divvy members exceeds casual riders", 
+       subtitle = "Information reflects recording from year 2022", 
+       caption = "Data collected from from Divvy from Jan. 2022 - Dec. 2022") +
+  theme_void()
+```
+
+2. Analyze ridership data by type -weekday, number of riders
+```{r}
+all_trips_clean %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(member_casual)  %>% 
+  ggplot(aes(x = weekday, y = number_of_rides, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  ggtitle("Comparison by weekday and ride time of Casual and customer riders") +
+  xlab("Day of week") +
+  ylab("Number of rides") +
+  labs(subtitle = "Members take more rides on weekdays",
+    caption = "Data collected from from Divvy from Jan. 2022 - Dec. 2022") +
+  scale_y_continuous(breaks=seq(00000,450000,by=50000))
+```
+
+3. Compare customer type over last 12 months by duration of ride
+```{r}
+all_trips_clean %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, month) %>% 
+  summarise(number_of_rides = n()
+            ,median_duration = median(ride_length)) %>% 
+  arrange(member_casual, month)  %>% 
+  ggplot(aes(x = month, y = median_duration, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  ggtitle("Comparison by month and ride time of Casual and customer riders") +
+  xlab("Month") +
+  ylab("Median Length of ride (in seconds)") +
+  labs(subtitle = "Casual riders take longer rides in warmer months",
+    caption = "Data collected from from Divvy from Jan. 2022 - Dec. 2022") 
+```
+
+4. Analyze ridership data by type and month - number of riders
+```{r}
+all_trips_clean %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>% 
+  group_by(member_casual, month) %>% 
+  summarise(number_of_rides = n()) %>% 
+  arrange(member_casual, month)  %>% 
+  ggplot(aes(x = month, y = number_of_rides, fill = member_casual)) +
+  geom_col(position = "dodge") +
+  ggtitle("Comparison by month of Casual and customer riders") +
+  xlab("Month") +
+  ylab("Number of rides per month") +
+  labs(subtitle = "Members take more rides in warmer months",
+    caption = "Data collected from from Divvy from Jan. 2022 - Dec. 2022") +
+  scale_y_continuous(breaks=seq(0,350000,by=50000))
+```
+
+4. Line chart comparison of duration of ride over last 12 month by customer type 
+```{r}
+library(ggrepel)
+# Another comparison of rider type
+all_trips_clean %>% 
+  mutate(weekday = wday(started_at, label = TRUE)) %>%
+  group_by(member_casual, weekday) %>% 
+  summarise(number_of_rides = n()
+            ,median_duration = median(ride_length)) %>%
+  mutate(Sat_value = if_else(weekday == 'Sat', member_casual,NULL)) %>%  
+  arrange(member_casual, weekday)  %>% 
+  ggplot( aes(x=weekday, y=median_duration, color=member_casual, group=member_casual)) +
+  geom_line(size=1.25) +
+  geom_text(aes(label = Sat_value),hjust="left") +
+  ggtitle("Casual bike riders take longer rides than members") +
+  theme(legend.position = "none") +
+  xlab("Day of week") +
+  ylab("Median length of ride in seconds") +
+  labs(subtitle = "Difference is consistent on weekdays and weekends",
+    caption = "Data collected from from Divvy from Jan. 2022 - Dec. 2022") +
+  scale_y_continuous(expand = c(0, 0), limits = c(0, NA))
+```
+
+
+## STEP 7: Output Files
+##### Create a csv file that we will visualize in Excel, Tableau, or presentation software
+```{r}
+counts <- aggregate(all_trips_clean$ride_length ~ all_trips_clean$member_casual + all_trips_clean$day_of_week, FUN = median)
+write.csv(counts, file = "C:/Users/peter/Documents/Google Data Analytics learning/Google Data Analysis docs - Part 8/Cyclistic - data/avg_ride_length.csv")
+```
+## STEP 8: RECOMMENDATIONS
+- Management should look to appeal to casual riders via weekend campaigns, as the number of casual riders is 20% higher than on weekdays
+- Casual riders take longer rides. Look for ways to appeal to riders who take longer trips in general
+  (targeted discounts, etc.)
+- A discount could be offered for casual summer riders to extend a yearly membership to colder winter months
+
+```{r pressure, echo=FALSE}
+
+```
+
