@@ -16,5 +16,3 @@ https://divvy-tripdata.s3.amazonaws.com/index.html:
 11. 202211-divvy-tripdata.csv
 12. 202212-divvy-tripdata.csv
 (Some files are too large to store here on github, so providing links)
-
-## Powerpoint summary analysis
