@@ -115,7 +115,7 @@ is.numeric(all_trips_v2$ride_length)
 all_trips_v2$ride_length <- as.numeric(as.character(all_trips_v2$ride_length))
 is.numeric(all_trips_v2$ride_length)
 ```
-## STEP 2: CLEAN DATA (PART 2)
+## STEP 4: CLEAN DATA (PART 2)
 1. Remove "bad" data
 
 The dataframe includes a few hundred entries when bikes were taken out of docks and checked for   quality by Divvy or ride_length was negative.
