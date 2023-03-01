@@ -29,10 +29,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## SETUP STEPS
 Install required packages:  
-* tidyverse for data import and wrangling
-* lubridate for date functions
-* ggplot for visualization
-* dplyr for analysis
+
+- tidyverse for data import and wrangling
+- lubridate for date functions
+- ggplot for visualization
+- dplyr for analysis
  
 ```{r}
 library(tidyverse)  
