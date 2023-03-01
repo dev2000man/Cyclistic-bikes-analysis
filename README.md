@@ -16,3 +16,7 @@ https://divvy-tripdata.s3.amazonaws.com/index.html:
 11. 202211-divvy-tripdata.csv
 12. 202212-divvy-tripdata.csv
 (Some files are too large to store here on github, so providing links)
+
+The rendered html in the /docs folder can be seen here:
+https://dev2000man.github.io/Cyclistic-bikes-analysis/docs/index.html
+
