@@ -17,7 +17,7 @@ https://dev2000man.github.io/Cyclistic-bikes-analysis/docs/index.html
 ### Data files used in Case Study
 List of .csv files - 12 in all - at <br>
 https://divvy-tripdata.s3.amazonaws.com/index.html:
-1. 202201-divvy-tripdata.csv
+1. 202201-divvy-tripdata.csv  [ZIP](https://divvy-tripdata.s3.amazonaws.com/202201-divvy-tripdata.zip) [CSV](https://www.kaggle.com/datasets/michaeljohnsonjr/divvytrips2021?select=202101-divvy-tripdata.csv)
 2. 202202-divvy-tripdata.csv
 3. 202203-divvy-tripdata.csv
 4. 202204-divvy-tripdata.csv
