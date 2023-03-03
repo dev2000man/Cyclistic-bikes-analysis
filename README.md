@@ -3,16 +3,16 @@
 This case study is to complete the Google Data Analytics certification
 
 ### Contents of Case study (in the /docs folder):
-1. R file (RMD file) - <b>index.rmd</b>
+1. R file (RMD file) - [index.rmd](https://github.com/dev2000man/Cyclistic-bikes-analysis/blob/main/docs/index.rmd)
 
-2. Output of RMD file - html file - <b>index.html</b>
+2. Output of RMD file - html file - [index.html](https://github.com/dev2000man/Cyclistic-bikes-analysis/blob/main/docs/index.html)
 
 The rendered html in the /docs folder can be seen here:<br>
 https://dev2000man.github.io/Cyclistic-bikes-analysis/docs/index.html
 
 3. Generated .csv file from .rmd file - <b>avg_ride_length.csv</b>
 
-4. Powerpoint summary report - <b>Cyclistic Bike Riding - analysis.pptx</b>
+4. Powerpoint summary report - [Cyclistic Bike Riding - analysis.pptx](https://github.com/dev2000man/Cyclistic-bikes-analysis/blob/main/docs/Cyclistic%20Bike%20Riding%20-%20analysis.pptx)
 
 ### Data files used in Case Study
 List of .csv files - 12 in all - at <br>
